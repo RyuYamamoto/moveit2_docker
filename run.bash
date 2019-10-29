@@ -9,4 +9,4 @@ docker run -it --rm \
  -v $HOME/.Xauthority:/root/.Xauthority \
  --privileged \
  --net=host \
- ros2 "$@"
+ ros2 bash -c "tmux" "$@"
