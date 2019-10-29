@@ -61,4 +61,33 @@ RUN cd src/gazebo_ros_pkgs && git checkout dashing
 # Avoid compiling erroneus package
 RUN touch ~/ros2_mara_ws/src/orocos_kinematics_dynamics/orocos_kinematics_dynamics/COLCON_IGNORE
 RUN cd ~/ros2_mara_ws/src/HRIM && pip3 install hrim && hrim generate models/actuator/servo/servo.xml && hrim generate models/actuator/gripper/gripper.xml
+RUN mkdir -p ~/ros2_mara_ws/src && \
+    cd ~/ros2_mara_ws/src && \
+    git clone https://github.com/AcutronicRobotics/moveit2 -b master && \
+    cd .. && \
+    vcs import src < src/moveit2/moveit2.repos && \
+    export ROS_DISTRO=dashing && \
+    rosdep update && rosdep install -q -y --from-paths . --ignore-src --rosdistro ${ROS_DISTRO}
 RUN bash -c "source /opt/ros/dashing/setup.bash && cd ~/ros2_mara_ws && colcon build --merge-install --packages-skip individual_trajectories_bridge && touch ~/ros2_mara_ws/install/share/orocos_kdl/local_setup.sh ~/ros2_mara_ws/install/share/orocos_kdl/local_setup.bash"
+RUN cd ~ && git clone -b dashing https://github.com/AcutronicRobotics/gym-gazebo2
+RUN cd ~/gym-gazebo2 && pip3 install -e .
+RUN cd ~  && \
+    git clone https://github.com/openai/gym && \
+    cd gym && \
+    pip3 install -e .
+RUN cd ~/gym-gazebo2 && \
+    echo "source `pwd`/provision/mara_setup.sh" >> ~/.bashrc && \
+    bash -c "source ~/.bashrc"
+RUN echo "source /opt/ros/dashing/setup.bash" >> ~/.bashrc && \
+    echo "source ~/ros2_mara_ws/install/setup.bash" >> ~/.bashrc && \
+    echo " source /usr/share/gazebo-9/setup.sh" >> ~/.bashrc && \
+    echo "export PYTHONPATH=$PYTHONPATH:~/ros2_mara_ws/install/lib/python3/dist-packages" >> ~/.bashrc && \
+    echo "export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:~/ros2_mara_ws/src/MARA" >> ~/.bashrc && \
+    echo "export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:~/ros2_mara_ws/src/MARA/mara_gazebo_plugins/build/" >> ~/.bashrc && \
+    echo "export RMW_IMPLEMENTATION=rmw_opensplice_cpp" >> ~/.bashrc && \
+    bash -c "source ~/.bashrc"
+
+# My settins.
+RUN apt install -y tmux
+RUN cd ~ && git clone https://github.com/RyuYamamoto/haze_setting
+RUN cp ~/haze_setting/tmux/tmux.conf ~/.tmux.conf
