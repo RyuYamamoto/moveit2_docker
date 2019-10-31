@@ -67,7 +67,9 @@ RUN mkdir -p ~/ros2_mara_ws/src && \
     cd .. && \
     vcs import src < src/moveit2/moveit2.repos && \
     export ROS_DISTRO=dashing && \
-    rosdep update && rosdep install -q -y --from-paths . --ignore-src --rosdistro ${ROS_DISTRO}
+    rosdep update && rosdep install -q -y --from-paths . --ignore-src --rosdistro ${ROS_DISTRO} && \
+    rm -rf ~/ros2_mara_ws/src/control_msgs && \
+    apt install -y ros-dashing-control-msgs
 RUN bash -c "source /opt/ros/dashing/setup.bash && cd ~/ros2_mara_ws && colcon build --merge-install --packages-skip individual_trajectories_bridge && touch ~/ros2_mara_ws/install/share/orocos_kdl/local_setup.sh ~/ros2_mara_ws/install/share/orocos_kdl/local_setup.bash"
 RUN cd ~ && git clone -b dashing https://github.com/AcutronicRobotics/gym-gazebo2
 RUN cd ~/gym-gazebo2 && pip3 install -e .
